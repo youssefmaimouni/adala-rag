@@ -1,0 +1,11 @@
+.env
+global_legal_rag/*
+images/*
+legal_DOCS/*
+.venv/*
+__pycache__/*
+unified_rag/*
+chat_history.db
+conversations.json
+merge_indexes.py
+test.py

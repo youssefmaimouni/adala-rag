@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8" />
+    <title>Legal RAG Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="max-w-3xl mx-auto mt-10 bg-white p-6 rounded-2xl shadow">
+    <h1 class="text-2xl font-bold mb-4 text-center">
+        🤖 Legal Assistant
+    </h1>
+
+    <div id="chatbox" class="h-96 overflow-y-auto border rounded p-3 mb-4"></div>
+
+    <div class="flex gap-2">
+        <input
+            id="message"
+            type="text"
+            placeholder="اكتب سؤالك هنا..."
+            class="flex-1 border rounded p-2"
+        />
+        <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 rounded">
+            إرسال
+        </button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("message");
+    const chatbox = document.getElementById("chatbox");
+    const message = input.value;
+
+    if (!message) return;
+
+    chatbox.innerHTML += `<div><b>أنت:</b> ${message}</div>`;
+    input.value = "";
+
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message})
+    });
+
+    const data = await res.json();
+
+    chatbox.innerHTML += `<div class="text-blue-700"><b>Bot:</b> ${data.answer}</div>`;
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+</script>
+
+</body>
+</html>

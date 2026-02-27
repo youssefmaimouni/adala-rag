@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المساعد القانوني الذكي</title>
+
+    {# External CSS #}
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    {# App CSS — served via Flask static #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    {# ====================== SIDEBAR ====================== #}
+    <header id="sidebar">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/logo1.png') }}"
+                 alt="شعار المساعد القانوني الذكي"
+                 class="logo"
+                 onerror="this.style.display='none'">
+        </div>
+
+        <div class="home-button-container">
+            <button id="new-chat-btn" class="home-button">
+                <i class="fas fa-plus"><svg width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+<title/>
+
+<g id="Complete">
+
+<g data-name="add" id="add-2">
+
+<g>
+
+<line fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="19" y2="5"/>
+
+<line fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="5" x2="19" y1="12" y2="12"/>
+
+</g>
+
+</g>
+
+</g>
+
+</svg></i>
+                محادثة جديدة
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">المحادثات السابقة</div>
+                <div id="chat-history-list">
+                    {# Populated dynamically via JS #}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    {# ====================== MAIN ====================== #}
+    <main>
+
+        {# Top bar #}
+        <div class="main-header">
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="القائمة">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="main-title">
+                <img src="{{ url_for('static', filename='images/logo1.png') }}"
+                     alt="Logo"
+                     onerror="this.style.display='none'">
+                <div class="main-title-text">
+                    <h1>المساعد القانوني الذكي</h1>
+                    <p>مستشارك القانوني الشخصي</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="header-btn" id="download-btn" title="تحميل المحادثة">
+                    <i class="fas fa-download"><svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M17 17H17.01M17.4 14H18C18.9319 14 19.3978 14 19.7654 14.1522C20.2554 14.3552 20.6448 14.7446 20.8478 15.2346C21 15.6022 21 16.0681 21 17C21 17.9319 21 18.3978 20.8478 18.7654C20.6448 19.2554 20.2554 19.6448 19.7654 19.8478C19.3978 20 18.9319 20 18 20H6C5.06812 20 4.60218 20 4.23463 19.8478C3.74458 19.6448 3.35523 19.2554 3.15224 18.7654C3 18.3978 3 17.9319 3 17C3 16.0681 3 15.6022 3.15224 15.2346C3.35523 14.7446 3.74458 14.3552 4.23463 14.1522C4.60218 14 5.06812 14 6 14H6.6M12 15V4M12 15L9 12M12 15L15 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></i>
+                    <span>تحميل</span>
+                </button>
+            </div>
+        </div>
+
+        {# Chat container #}
+        <div class="chat-container">
+
+            {# Mode switcher + clear button #}
+            <div class="chat-sidebar">
+                <div class="chat-modes">
+                    <button class="mode-btn active" data-mode="general">
+                        <i class="fas fa-comments"><svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<style type="text/css">
+	.st0{opacity:0.2;fill:none;stroke:#ffffff;stroke-width:5.000000e-02;stroke-miterlimit:10;}
+</style>
+
+<g id="grid_system"/>
+
+<g id="_icons">
+
+<path d="M22,13.5c0-2.3-1.8-4.2-4-4.5c-0.2-2.8-2.6-5-5.4-5H7.5C6,4,4.6,4.6,3.6,5.6C2.6,6.6,2,8,2,9.5c0,1.2,0.4,2.3,1,3.2l-1,3   c-0.1,0.4,0,0.8,0.3,1.1C2.5,16.9,2.8,17,3,17c0.2,0,0.3,0,0.4-0.1l4-2c0,0,0,0,0,0h1.8c0.2,0.5,0.4,1,0.7,1.4   c0.9,1.1,2.1,1.7,3.5,1.7h2.3l3.8,1.9C19.7,20,19.8,20,20,20c0.2,0,0.5-0.1,0.7-0.2c0.3-0.3,0.4-0.7,0.3-1.1L20.4,17   c0.1-0.1,0.2-0.2,0.3-0.3C21.5,15.8,22,14.7,22,13.5z M7.3,12.9c-0.2,0-0.4,0-0.6,0.1l-2.1,1l0.4-1.3c0.1-0.3,0-0.7-0.2-1   C4.3,11.1,4,10.3,4,9.5C4,8.5,4.4,7.7,5,7c0.7-0.7,1.5-1,2.4-1h5.1c1.8,0,3.2,1.3,3.4,3h-2.5c-1.2,0-2.3,0.5-3.2,1.3   c-0.7,0.7-1.1,1.5-1.3,2.4c0,0.1,0,0.1,0,0.2H7.5C7.4,12.9,7.4,12.9,7.3,12.9z M19.3,15.3c-0.2,0.2-0.4,0.3-0.6,0.4   c-0.4,0.2-0.6,0.7-0.5,1.2l0.1,0.2l-1.8-0.9C16.3,16,16.2,16,16,16h-2.5c-0.8,0-1.5-0.3-2-1c-0.3-0.4-0.5-0.8-0.5-1.2   c0-0.1,0-0.2,0-0.3c0-0.1,0-0.3,0-0.4c0.1-0.5,0.3-1,0.7-1.3c0.5-0.5,1.1-0.7,1.8-0.7H17h0.5c1.4,0,2.5,1.1,2.5,2.5   C20,14.2,19.7,14.8,19.3,15.3z"/>
+
+</g>
+
+</svg></i> استشارة عامة
+                    </button>
+                    <!-- <button class="mode-btn" data-mode="law">
+                        <i class="fas fa-book-open"></i> شرح قانون
+                    </button> -->
+                </div>
+                <div class="chat-info">
+                    <button id="clear-chat" class="mode-btn">
+                        <i class="fas fa-trash"><svg fill="#000000" width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg></i> مسح المحادثة
+                    </button>
+                </div>
+            </div>
+
+            {# Messages area #}
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <div class="ai-badge">
+                        <i class="fas fa-robot"><svg fill="#000000" width="20px" height="20px" viewBox="0 -64 640 640" xmlns="http://www.w3.org/2000/svg"><path d="M32,224H64V416H32A31.96166,31.96166,0,0,1,0,384V256A31.96166,31.96166,0,0,1,32,224Zm512-48V448a64.06328,64.06328,0,0,1-64,64H160a64.06328,64.06328,0,0,1-64-64V176a79.974,79.974,0,0,1,80-80H288V32a32,32,0,0,1,64,0V96H464A79.974,79.974,0,0,1,544,176ZM264,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,264,256Zm-8,128H192v32h64Zm96,0H288v32h64ZM456,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,456,256Zm-8,128H384v32h64ZM640,256V384a31.96166,31.96166,0,0,1-32,32H576V224h32A31.96166,31.96166,0,0,1,640,256Z"/></svg></i> المساعد الذكي
+                    </div>
+                    مرحباً بك في المساعد القانوني الذكي! كيف يمكنني مساعدتك اليوم؟
+                    <div class="message-time" id="current-time"></div>
+                </div>
+            </div>
+        </div>
+
+        {# Fixed input bar #}
+        <div class="chat-input" id="chat-input">
+            <textarea id="user-input"
+                      placeholder="اكتب سؤالك هنا..."
+                      rows="1"
+                      aria-label="مربع النص"></textarea>
+
+            <button id="keyboard-btn" class="mode-btn" title="لوحة مفاتيح عربية" aria-label="لوحة مفاتيح">
+                <i class="fas fa-keyboard"><svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8 5H16C18.8284 5 20.2426 5 21.1213 5.87868C22 6.75736 22 8.17157 22 11V13C22 15.8284 22 17.2426 21.1213 18.1213C20.2426 19 18.8284 19 16 19H8C5.17157 19 3.75736 19 2.87868 18.1213C2 17.2426 2 15.8284 2 13V11C2 8.17157 2 6.75736 2.87868 5.87868C3.75736 5 5.17157 5 8 5ZM6 10C6.55228 10 7 9.55228 7 9C7 8.44772 6.55228 8 6 8C5.44772 8 5 8.44772 5 9C5 9.55228 5.44772 10 6 10ZM6 13C6.55228 13 7 12.5523 7 12C7 11.4477 6.55228 11 6 11C5.44772 11 5 11.4477 5 12C5 12.5523 5.44772 13 6 13ZM9 13C9.55228 13 10 12.5523 10 12C10 11.4477 9.55228 11 9 11C8.44772 11 8 11.4477 8 12C8 12.5523 8.44772 13 9 13ZM9 10C9.55228 10 10 9.55228 10 9C10 8.44772 9.55228 8 9 8C8.44772 8 8 8.44772 8 9C8 9.55228 8.44772 10 9 10ZM12 10C12.5523 10 13 9.55228 13 9C13 8.44772 12.5523 8 12 8C11.4477 8 11 8.44772 11 9C11 9.55228 11.4477 10 12 10ZM12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13ZM15 10C15.5523 10 16 9.55228 16 9C16 8.44772 15.5523 8 15 8C14.4477 8 14 8.44772 14 9C14 9.55228 14.4477 10 15 10ZM15 13C15.5523 13 16 12.5523 16 12C16 11.4477 15.5523 11 15 11C14.4477 11 14 11.4477 14 12C14 12.5523 14.4477 13 15 13ZM18 10C18.5523 10 19 9.55228 19 9C19 8.44772 18.5523 8 18 8C17.4477 8 17 8.44772 17 9C17 9.55228 17.4477 10 18 10ZM18 13C18.5523 13 19 12.5523 19 12C19 11.4477 18.5523 11 18 11C17.4477 11 17 11.4477 17 12C17 12.5523 17.4477 13 18 13ZM17.75 16C17.75 16.4142 17.4142 16.75 17 16.75H7C6.58579 16.75 6.25 16.4142 6.25 16C6.25 15.5858 6.58579 15.25 7 15.25H17C17.4142 15.25 17.75 15.5858 17.75 16Z" fill="#1C274C"/>
+</svg></i>
+            </button>
+            <!-- <button id="voice-btn" class="mode-btn" title="الإدخال الصوتي" aria-label="ميكروفون">
+                <i class="fas fa-microphone"><svg fill="#000000" width="20px" height="20px" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+
+<title/>
+
+<g>
+
+<path d="M84,36a6,6,0,0,0-12,0,24,24,0,0,1-48,0,6,6,0,0,0-12,0A35.9772,35.9772,0,0,0,42,71.3936V84H30a6,6,0,0,0,0,12H66a6,6,0,0,0,0-12H54V71.3936A35.9772,35.9772,0,0,0,84,36Z"/>
+
+<path d="M48,48A12.0157,12.0157,0,0,0,60,36V12a12,12,0,0,0-24,0V36A12.0157,12.0157,0,0,0,48,48Z"/>
+
+</g>
+
+</svg></i>
+            </button> -->
+            <button id="send-btn" aria-label="إرسال">
+                <i class="fas fa-paper-plane"><svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 334.5 334.5" xml:space="preserve">
+<path d="M332.797,13.699c-1.489-1.306-3.608-1.609-5.404-0.776L2.893,163.695c-1.747,0.812-2.872,2.555-2.893,4.481
+	s1.067,3.693,2.797,4.542l91.833,45.068c1.684,0.827,3.692,0.64,5.196-0.484l89.287-66.734l-70.094,72.1
+	c-1,1.029-1.51,2.438-1.4,3.868l6.979,90.889c0.155,2.014,1.505,3.736,3.424,4.367c0.513,0.168,1.04,0.25,1.561,0.25
+	c1.429,0,2.819-0.613,3.786-1.733l48.742-56.482l60.255,28.79c1.308,0.625,2.822,0.651,4.151,0.073
+	c1.329-0.579,2.341-1.705,2.775-3.087L334.27,18.956C334.864,17.066,334.285,15.005,332.797,13.699z"/>
+</svg></i> إرسال
+            </button>
+        </div>
+    </main>
+
+    {# ====================== ARABIC KEYBOARD ====================== #}
+    <div class="arabic-keyboard" id="arabic-keyboard" aria-hidden="true">
+        <div class="keyboard-rows">
+            <div class="keyboard-row">
+                {% for key in ['ذ','ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج'] %}
+                <div class="keyboard-key" data-key="{{ key }}">{{ key }}</div>
+                {% endfor %}
+            </div>
+            <div class="keyboard-row">
+                {% for key in ['ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط'] %}
+                <div class="keyboard-key" data-key="{{ key }}">{{ key }}</div>
+                {% endfor %}
+            </div>
+            <div class="keyboard-row">
+                {% for key in ['ء','ؤ','ر','لا','ى','ة','و','ز','ظ'] %}
+                <div class="keyboard-key" data-key="{{ key }}">{{ key }}</div>
+                {% endfor %}
+            </div>
+            <div class="keyboard-row">
+                <div class="keyboard-key delete" data-key="delete">مسح</div>
+                <div class="keyboard-key space"  data-key="space">مسافة</div>
+                <div class="keyboard-key close"  data-key="close">إغلاق</div>
+            </div>
+        </div>
+    </div>
+
+    {# ====================== RECORDING INDICATOR ====================== #}
+    <div id="recording-indicator" class="recording-indicator" aria-live="polite">
+        <div class="recording-animation-container">
+            <div class="recording-wave"></div>
+            <div class="recording-wave"></div>
+            <div class="recording-wave"></div>
+            <div class="recording-circle">
+                <i class="fas fa-microphone"></i>
+            </div>
+        </div>
+        <div class="recording-text">جاري الاستماع...</div>
+        <div class="recording-timer" id="recording-timer">00:00</div>
+        <button class="recording-cancel-btn" id="recording-cancel">
+            <i class="fas fa-times"></i> إلغاء
+        </button>
+    </div>
+
+    {# ====================== HELP BUTTON ====================== #}
+    <div class="help-button" id="help-button" role="button" tabindex="0" aria-label="مساعدة">
+        <i class="fas fa-question"><svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 19H12.01M8.21704 7.69689C8.75753 6.12753 10.2471 5 12 5C14.2091 5 16 6.79086 16 9C16 10.6565 14.9931 12.0778 13.558 12.6852C12.8172 12.9988 12.4468 13.1556 12.3172 13.2767C12.1629 13.4209 12.1336 13.4651 12.061 13.6634C12 13.8299 12 14.0866 12 14.6L12 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></i>
+        <div class="help-tooltip">اضغط للحصول على مساعدة في استخدام المساعد القانوني</div>
+    </div>
+
+    {# ====================== HELP PANEL ====================== #}
+    <div class="overlay" id="overlay"></div>
+    <div class="help-panel" id="help-panel" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <div class="help-panel-header">
+            <div class="help-panel-title" id="help-title">مساعدة</div>
+            <button class="close-panel" id="close-panel" aria-label="إغلاق">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="help-panel-content">
+            <h3>كيفية استخدام المساعد القانوني</h3>
+            <p>يمكنك استخدام المساعد القانوني بطريقتين مختلفتين:</p>
+            <ol>
+                <li><strong>استشارة عامة:</strong> اكتب سؤالك القانوني مباشرة في مربع الدردشة.</li>
+                <li><strong>شرح قانون:</strong> اختر وضع "شرح قانون" للحصول على توضيح مفصل لمواد وأحكام القانون الذي تهتم به.</li>
+            </ol>
+            <p>تذكر أن هذا المساعد يقدم معلومات عامة، وننصح بالرجوع إلى محامٍ مختص للحالات الخاصة.</p>
+        </div>
+    </div>
+
+    {# App JS #}
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
