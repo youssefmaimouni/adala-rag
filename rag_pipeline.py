@@ -22,7 +22,7 @@ load_dotenv()
 # ==========================
 # CONFIG
 # ==========================
-SAVE_DIR = "./Legal_RAG"
+SAVE_DIR = "./legal_RAG"
 EMBED_MODEL = "BAAI/bge-m3"
 
 # ==========================
