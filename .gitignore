@@ -2,6 +2,7 @@
 global_legal_rag/*
 images/*
 legal_DOCS/*
+Legal_RAG/*
 .venv/*
 __pycache__/*
 unified_rag/*
