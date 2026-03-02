@@ -308,6 +308,44 @@ main {
     margin: 0.8rem 0;
 }
 
+/* -------------- source links (attached to bot replies) -------------- */
+.source-container {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.9rem;
+
+    direction: rtl;       /* important for Arabic */
+    text-align: right;    /* align text right */
+}
+
+/* make source buttons look like the other primary buttons in the app */
+.source-button {
+    display: inline-block;
+    width: 50%;              /* fixed width half of container */
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--text-light);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    text-align: right;    /* Arabic alignment */
+    direction: rtl;
+
+    white-space: nowrap;  
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.source-button:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    /* maintain same width; no overflow change */
+}
+
 .message-time {
     font-size: 0.7rem;
     opacity: 0.7;

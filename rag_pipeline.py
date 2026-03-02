@@ -84,24 +84,6 @@ embedding_model = HuggingFaceEmbeddings(
      encode_kwargs={"normalize_embeddings": True},
 )
 
-# # ---- Load your FAISS index ----
-# index = faiss.read_index("./Legal_RAG/faiss.index")
-
-# # ---- Load your docs ----
-# with open("./Legal_RAG/docs.pkl", "rb") as f:
-#     all_docs = pickle.load(f)
-# print(embedding_model)
-# # ---- Build LangChain FAISS vectorstore manually ----
-# vectorstore = FAISS(
-#     index=index,      # FAISS index object
-#     docstore=all_docs, # list of dicts
-#     embedding_function=embedding_model, # embedding function for retriever
-#     index_to_docstore_id={i: doc for i, doc in enumerate(all_docs)}
-# )
-
-from langchain_community.docstore import InMemoryDocstore
-from langchain.schema import Document
-
 # ---- Convert your loaded docs into Document objects (if needed) ----
 # If docs.pkl already contains Document objects, skip conversion
 
@@ -132,7 +114,7 @@ vectorstore = FAISS(
     embedding_function=embedding_model,
 )
 
-retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
 
 
 # (The vectorstore has already been constructed above with the proper
@@ -144,19 +126,63 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 # ==========================
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
-    retriever=retriever
+    retriever=retriever,
+    return_source_documents=True    # ensure retrieved docs are included in result
 )
 
+def _format_source(src: str) -> dict:
+    """Return a dict with ``name`` and ``url`` for a source path.
+
+    The frontend expects a list of such dicts; when the source file lives
+    under ``legal_DOCS`` we compute a URL via our ``/pdf`` helper route.
+    Otherwise ``url`` stays ``None`` and the client may simply display the
+    basename without making it clickable.
+    """
+    info = {"name": "", "url": None}
+    if not src:
+        return info
+
+    # normalize to forward slashes for URLs
+    src_path = os.path.normpath(src)
+    try:
+        rel = os.path.relpath(src_path, start=os.getcwd())
+    except Exception:
+        rel = src_path
+
+    info["name"] = os.path.basename(src_path)
+    if rel.startswith(os.path.normpath('legal_DOCS')):
+        # strip leading directory portion
+        rel_path = rel[len(os.path.normpath('legal_DOCS') + os.sep) :]
+        url = f"/pdf/{rel_path.replace(os.sep, '/') }"
+        info["url"] = url
+    return info
+
+
 def ask_question(question: str):
-    result = qa_chain.invoke({"query": question})
-    
-    return result["result"]
+    # request the chain and explicitly ask for source_documents
+    result = qa_chain({"query": question})
+    answer = result.get("result", "")
+
+    # gather unique source links from the retrieved documents
+    seen = set()
+    sources = []
+
+    for doc in result.get("source_documents", []):
+        src = doc.metadata.get("source")
+        if not src or src in seen:
+            continue
+        seen.add(src)
+        sources.append(src)
+
+    # sources is now a list of dicts {name,url}
+    return answer, sources
 
 # ==========================
 # EXAMPLE USAGE
 # ==========================
 if __name__ == "__main__":
-    question = "ما هي أحكام المادة 23 من قانون المسطرة الجنائية؟"
-    answer = ask_question(question)
+    question = "ما هي عقوبة تجاوز السرعة القصوى"
+    answer, sources = ask_question(question)
     print("❓ Question:", question)
     print("💡 Answer:", answer)
+    print("📁 Sources:", sources)

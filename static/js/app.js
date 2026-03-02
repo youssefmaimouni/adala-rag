@@ -52,7 +52,8 @@
     if (timeEl) timeEl.textContent = now();
 
     // ---- Render messages ----
-    function addMessage(text, role) {
+    // sources is optional array of {name,url}
+    function addMessage(text, role, sources) {
         // Remove typing indicator if present
         const typing = document.getElementById('typing-msg');
         if (typing) typing.remove();
@@ -61,9 +62,10 @@
         div.className = `message ${role === 'user' ? 'user-message' : 'bot-message'}`;
 
         if (role === 'bot') {
+            // bot text may contain HTML (links), so insert without escaping
             div.innerHTML = `
                 <div class="ai-badge"><i class="fas fa-robot"><svg fill="#000000" width="20px" height="20px" viewBox="0 -64 640 640" xmlns="http://www.w3.org/2000/svg"><path d="M32,224H64V416H32A31.96166,31.96166,0,0,1,0,384V256A31.96166,31.96166,0,0,1,32,224Zm512-48V448a64.06328,64.06328,0,0,1-64,64H160a64.06328,64.06328,0,0,1-64-64V176a79.974,79.974,0,0,1,80-80H288V32a32,32,0,0,1,64,0V96H464A79.974,79.974,0,0,1,544,176ZM264,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,264,256Zm-8,128H192v32h64Zm96,0H288v32h64ZM456,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,456,256Zm-8,128H384v32h64ZM640,256V384a31.96166,31.96166,0,0,1-32,32H576V224h32A31.96166,31.96166,0,0,1,640,256Z"/></svg></i> المساعد الذكي</div>
-                <div class="msg-content">${escapeHtml(text)}</div>
+                <div class="msg-content">${text}</div>
                 <div class="message-time">${now()}</div>
             `;
         } else {
@@ -73,6 +75,31 @@
             `;
         }
 
+        // if we have source links, append a row of buttons below the text
+        if (role === 'bot' && Array.isArray(sources) && sources.length) {
+            const srcContainer = document.createElement('div');
+            srcContainer.className = 'source-container';
+            srcContainer.innerHTML = `<strong>المصادر:</strong>`;
+
+            sources.forEach(src => {
+                const btn = document.createElement('button');
+                btn.className = 'source-button';
+
+                btn.textContent = src;
+                btn.title = src;
+
+                btn.addEventListener('click', () => {
+                    window.open(`/pdf/${src}`, '_blank');
+                });
+
+                srcContainer.appendChild(btn);
+            });
+
+            div.appendChild(srcContainer);
+            // ensure timestamp appears after sources
+            const timeEl = div.querySelector('.message-time');
+            if (timeEl) div.appendChild(timeEl);
+        }
         chatMessages.appendChild(div);
         scrollToBottom();
     }
@@ -118,7 +145,7 @@
             if (!res.ok) throw new Error('Network response was not ok');
 
             const data = await res.json();
-            addMessage(data.answer, 'bot');  // ← your API returns "answer"
+            addMessage(data.answer, 'bot', data.sources);  // include sources if present
 
             // refresh history list from server (new session may have been created)
             loadHistory();
@@ -241,6 +268,25 @@
                         <div class="msg-content">${escapeHtml(msg.text)}</div>
                         <div class="message-time">${formatTime(msg.time)}</div>
                     `;
+                    if (msg.sources && msg.sources.length) {
+                        // append source buttons after the message
+                        const srcContainer = document.createElement('div');
+                        srcContainer.className = 'source-container';
+                        msg.sources.forEach(src => {
+                            const btn = document.createElement('button');
+                            btn.className = 'source-button';
+                            btn.textContent = src.name;
+                            btn.title = src.name;
+                            if (src.url) {
+                                btn.addEventListener('click', () => window.open(src.url, '_blank'));
+                            }
+                            srcContainer.appendChild(btn);
+                        });
+                        div.appendChild(srcContainer);
+                        // move timestamp to bottom of message
+                        const timeEl = div.querySelector('.message-time');
+                        if (timeEl) div.appendChild(timeEl);
+                    }
                 } else {
                     div.innerHTML = `
                         ${escapeHtml(msg.text)}

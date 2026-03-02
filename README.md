@@ -73,7 +73,9 @@ version is available at the root `index.html` if you prefer a minimal client.
 ### API Endpoints
 
 - `POST /chat`: send a JSON payload `{ "message": "..." }`; returns
-  `{ "answer": "..." }`.
+  `{ "answer": "..." }`.  The response may include clickable links to the
+  original PDF files and chunk identifiers when the retriever metadata
+  contains a `source` field pointing into the `legal_DOCS` directory.
 - `/api/history` / `/api/session/<sid>`: conversation management.  See
   `app.py` for details.
 - `/api/clear` and `/api/new_session` control the stored conversation for the

@@ -80,24 +80,48 @@ def chat():
     if not user_message:
         return jsonify({"error": "Empty message"}), 400
 
-    answer = ask_question(user_message)
+    # ask_question now injects source links into the returned string
+    answer , sources = ask_question(user_message)
 
     # log into conversation store for current session
     sid = g.session_id
     conversations.setdefault(sid, {"owner": g.user_id, "created": datetime.datetime.utcnow().isoformat(), "messages": []})
+
+    # save the user message first
     conversations[sid]["messages"].append({
         "role": "user",
         "text": user_message,
         "time": datetime.datetime.utcnow().isoformat()
     })
-    conversations[sid]["messages"].append({
+
+    # record bot message along with any source metadata so that history
+    # playback can recreate the links
+    bot_entry = {
         "role": "bot",
         "text": answer,
         "time": datetime.datetime.utcnow().isoformat()
-    })
+    }
+    if sources:
+        bot_entry["sources"] = sources
+    conversations[sid]["messages"].append(bot_entry)
+
     save_conversations(conversations)
 
-    return jsonify({"answer": answer})
+    # always include sources key in the response (empty list if none)
+    return jsonify({"answer": answer, "sources": sources})
+
+
+# --- new helper route to serve PDFs from the legal_DOCS folder ---
+from flask import send_from_directory
+
+@app.route('/pdf/<path:filename>')
+def serve_pdf(filename):
+    """Return a file from the corpus directory.  Files are referenced
+    in the RAG metadata and exposed to the chat interface as links.
+    """
+    # the directory is fixed; avoid escaping by joining with os.path.normpath
+    base = os.path.abspath('legal_DOCS')
+    return send_from_directory(base, filename)
 
 @app.route("/api/clear", methods=["POST"])
 def clear():
