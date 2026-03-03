@@ -81,8 +81,22 @@ version is available at the root `index.html` if you prefer a minimal client.
 - `/api/clear` and `/api/new_session` control the stored conversation for the
   current cookie session.
 
-Conversation state is stored in `conversations.json` and keyed by cookies;
-a new user/session id is created automatically.
+Conversation state is now persisted in a PostgreSQL database rather than a JSON file.  Conversations are tied to authenticated users, and messages are stored in `conversations` and `messages` tables by SQLAlchemy.  Make sure to set the `DATABASE_URL` environment variable (e.g. `postgresql://user:pass@localhost/dbname`) before running the app; tables are created automatically.
+
+Users must register/login before using the chat interface; unauthenticated visitors are redirected to `/login`.  After logging in the first time the app creates a user record (see schema below).  Conversations can be resumed via URLs of the form `/chat/<conversationID>`.  The previous cookie‑based storage mechanism has been removed.
+
+`users` table definition (PostgreSQL):
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email_ciphertext BYTEA NOT NULL,
+    email_hash TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
 
 ---
 

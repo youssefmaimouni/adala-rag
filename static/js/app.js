@@ -136,7 +136,13 @@
         showTyping();
 
         try {
-            const res = await fetch('/chat', {
+            // determine conversation ID from URL if present
+            let url = '/chat';
+            const parts = window.location.pathname.split('/').filter(p => p);
+            if (parts[0] === 'chat' && parts[1]) {
+                url += '/' + parts[1];
+            }
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text, mode: currentMode })
@@ -149,6 +155,12 @@
 
             // refresh history list from server (new session may have been created)
             loadHistory();
+
+            // update URL to include current conversation
+            const cid = data && data.conversation_id;
+            if (cid) {
+                history.replaceState(null, '', '/chat/' + cid);
+            }
 
         } catch (err) {
             console.error(err);
@@ -185,7 +197,11 @@
     // ---- Clear chat ----
     clearBtn.addEventListener('click', async () => {
         try {
-            await fetch('/api/clear', { method: 'POST' });
+            // include current conversation id if present in URL
+            let url = '/api/clear';
+            const parts = window.location.pathname.split('/').filter(p=>p);
+            if (parts[0] === 'chat' && parts[1]) url += '?sid=' + parts[1];
+            await fetch(url, { method: 'POST' });
         } catch (_) {}
 
         chatMessages.innerHTML = `
@@ -201,7 +217,13 @@
     // ---- New chat ----
     newChatBtn.addEventListener('click', async () => {
         try {
-            await fetch('/api/new_session', { method: 'POST' });
+            const res = await fetch('/api/new_session', { method: 'POST' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.id) {
+                    history.replaceState(null, '', '/chat/' + data.id);
+                }
+            }
         } catch (_) {}
 
         chatMessages.innerHTML = `
@@ -300,6 +322,8 @@
             historyList.querySelectorAll('.chat-history-item').forEach(div => {
                 div.classList.toggle('active', div.dataset.sessionId === sessionId);
             });
+            // update browser URL so it reflects current conversation
+            history.replaceState(null, '', '/chat/' + sessionId);
         } catch (e) {
             console.error('Failed to load session', e);
         }

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <title>تسجيل الدخول</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <main style="padding:2rem;">
+        <h1>تسجيل الدخول</h1>
+        {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+        <form method="post">
+            <div>
+                <label>البريد الإلكتروني</label><br>
+                <input type="email" name="email" required>
+            </div>
+            <div>
+                <label>كلمة المرور</label><br>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">دخول</button>
+        </form>
+        <p>ليس لديك حساب؟ <a href="/register">سجل الآن</a></p>
+    </main>
+</body>
+</html>
