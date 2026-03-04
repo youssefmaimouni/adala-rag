@@ -18,7 +18,7 @@
     --warning-color: #ff9800;
     --danger-color: #f44336;
     --shadow-color: rgba(0, 0, 0, 0.1);
-    --sidebar-width: 320px;
+    --sidebar-width: 250px;  /* narrower sidebar */
     --keyboard-height: 200px;
     --input-height: 80px;
 }
@@ -63,6 +63,7 @@ header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap; /* prevent wrapping of logo text */
 }
 
 .logo { width: 120px; height: 100px; object-fit: contain; }
@@ -141,11 +142,12 @@ main {
 
 .main-header {
     background-color: var(--white-color);
-    padding: 1rem 2rem;
+    padding: 1rem 1.5rem; /* less vertical padding reduces height */
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 80px; /* fixed shorter header if needed */
 }
 
 .main-title {
@@ -158,7 +160,7 @@ main {
 
 .main-title img {
     width: 140px;
-    height: 80px;
+    height: 50px;
     object-fit: contain;
     order: 2;
 }
@@ -215,11 +217,12 @@ main {
 .chat-sidebar {
     width: 100%;
     background-color: var(--light-color);
-    padding: 1.2rem;
+    padding: 0.6rem 1rem; /* reduce height */
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid var(--border-color);
     align-items: center;
+    min-height: 40px;
 }
 
 .chat-modes { display: flex; gap: 8px; }
@@ -411,7 +414,7 @@ main {
 
 .chat-input.keyboard-active { bottom: var(--keyboard-height); }
 
-.chat-input textarea {
+.chat-input input {
     flex: 1;
     padding: 1rem;
     border: 1px solid var(--border-color);
@@ -425,7 +428,7 @@ main {
     font-family: 'Tajawal', sans-serif;
 }
 
-.chat-input textarea:focus {
+.chat-input input:focus {
     outline: none;
     border-color: var(--primary-light);
     box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.1);
@@ -779,7 +782,7 @@ main {
 
     .mobile-menu-toggle { display: block; }
 
-    .main-header { padding: 1rem; }
+    .main-header { padding: 0.5rem; }
 
     .chat-container {
         margin: 1rem;

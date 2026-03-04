@@ -24,7 +24,6 @@
     const recordingTimer   = document.getElementById('recording-timer');
     const recordingCancel  = document.getElementById('recording-cancel');
     const modeButtons      = document.querySelectorAll('.mode-btn[data-mode]');
-    const downloadBtn      = document.getElementById('download-btn');
     const mobileToggle     = document.getElementById('mobile-menu-toggle');
     const sidebar          = document.getElementById('sidebar');
     const historyList      = document.getElementById('chat-history-list');
@@ -36,6 +35,7 @@
     let timerInterval      = null;
     let timerSeconds       = 0;
     let chatHistoryMeta    = [];    // [{id, title, timestamp}]
+    let currentSessionId   = null;  // active conversation id when present
 
     // ---- Helpers ----
     function now() {
@@ -50,6 +50,17 @@
     // ---- Set current time in welcome message ----
     const timeEl = document.getElementById('current-time');
     if (timeEl) timeEl.textContent = now();
+
+    // show welcome message helper
+    function showWelcome() {
+        chatMessages.innerHTML = `
+            <div class="message bot-message">
+                <div class="ai-badge"><i class="fas fa-robot"><svg fill="#000000" width="20px" height="20px" viewBox="0 -64 640 640" xmlns="http://www.w3.org/2000/svg"><path d="M32,224H64V416H32A31.96166,31.96166,0,0,1,0,384V256A31.96166,31.96166,0,0,1,32,224Zm512-48V448a64.06328,64.06328,0,0,1-64,64H160a64.06328,64.06328,0,0,1-64-64V176a79.974,79.974,0,0,1,80-80H288V32a32,32,0,0,1,64,0V96H464A79.974,79.974,0,0,1,544,176ZM264,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,264,256Zm-8,128H192v32h64Zm96,0H288v32h64ZM456,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,456,256Zm-8,128H384v32h64ZM640,256V384a31.96166,31.96166,0,0,1-32,32H576V224h32A31.96166,31.96166,0,0,1,640,256Z"/></svg></i> المساعد الذكي</div>
+                مرحباً بك في المساعد القانوني الذكي! كيف يمكنني مساعدتك اليوم؟
+                <div class="message-time">${now()}</div>
+            </div>
+        `;
+    }
 
     // ---- Render messages ----
     // sources is optional array of {name,url}
@@ -131,7 +142,7 @@
 
         addMessage(text, 'user');
         userInput.value = '';
-        userInput.style.height = '50px';
+        userInput.style.height = '40px';
 
         showTyping();
 
@@ -153,14 +164,15 @@
             const data = await res.json();
             addMessage(data.answer, 'bot', data.sources);  // include sources if present
 
-            // refresh history list from server (new session may have been created)
-            loadHistory();
-
-            // update URL to include current conversation
+            // update current session id if backend returned one
             const cid = data && data.conversation_id;
             if (cid) {
+                currentSessionId = cid;
                 history.replaceState(null, '', '/chat/' + cid);
             }
+
+            // refresh history list from server (new session may have been created)
+            await loadHistory();
 
         } catch (err) {
             console.error(err);
@@ -181,7 +193,7 @@
 
     // Auto-resize textarea
     userInput.addEventListener('input', () => {
-        userInput.style.height = '50px';
+        userInput.style.height = '40px';
         userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
     });
 
@@ -204,13 +216,7 @@
             await fetch(url, { method: 'POST' });
         } catch (_) {}
 
-        chatMessages.innerHTML = `
-            <div class="message bot-message">
-                <div class="ai-badge"><i class="fas fa-robot"><svg fill="#000000" width="20px" height="20px" viewBox="0 -64 640 640" xmlns="http://www.w3.org/2000/svg"><path d="M32,224H64V416H32A31.96166,31.96166,0,0,1,0,384V256A31.96166,31.96166,0,0,1,32,224Zm512-48V448a64.06328,64.06328,0,0,1-64,64H160a64.06328,64.06328,0,0,1-64-64V176a79.974,79.974,0,0,1,80-80H288V32a32,32,0,0,1,64,0V96H464A79.974,79.974,0,0,1,544,176ZM264,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,264,256Zm-8,128H192v32h64Zm96,0H288v32h64ZM456,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,456,256Zm-8,128H384v32h64ZM640,256V384a31.96166,31.96166,0,0,1-32,32H576V224h32A31.96166,31.96166,0,0,1,640,256Z"/></svg></i> المساعد الذكي</div>
-                مرحباً بك في المساعد القانوني الذكي! كيف يمكنني مساعدتك اليوم؟
-                <div class="message-time">${now()}</div>
-            </div>
-        `;
+        showWelcome();
         await loadHistory();
     });
 
@@ -221,6 +227,7 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data.id) {
+                    currentSessionId = data.id;
                     history.replaceState(null, '', '/chat/' + data.id);
                 }
             }
@@ -247,9 +254,28 @@
         }
         chatHistoryMeta.forEach((item, idx) => {
             const div = document.createElement('div');
-            div.className = 'chat-history-item' + (idx === chatHistoryMeta.length - 1 ? ' active' : '');
+            const active = currentSessionId ? (item.id === currentSessionId) : (idx === chatHistoryMeta.length - 1);
+            div.className = 'chat-history-item' + (active ? ' active' : '');
             div.dataset.sessionId = item.id;
-            div.innerHTML = `<i class="fas fa-comment-dots"></i><span>${item.title}</span>`;
+            div.innerHTML = `<i class="fas fa-comment-dots"><svg width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    
+    <title>comment 1</title>
+    <desc>Created with Sketch Beta.</desc>
+    <defs>
+
+</defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-102.000000, -257.000000)" fill="#ffffff">
+            <path d="M118,257 C109.164,257 102,263.269 102,271 C102,275.419 104.345,279.354 108,281.919 L108,289 L115.009,284.747 C115.979,284.907 116.977,285 118,285 C126.836,285 134,278.732 134,271 C134,263.269 126.836,257 118,257" id="comment-1" sketch:type="MSShapeGroup">
+
+</path>
+        </g>
+    </g>
+</svg></i><span 
+  style="direction:rtl; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+  title="${item.title}">
+  ${item.title}
+</span>`;
             div.addEventListener('click', () => loadSession(item.id));
             historyList.appendChild(div);
         });
@@ -279,8 +305,10 @@
             const res = await fetch(`/api/session/${sessionId}`);
             if (!res.ok) throw new Error('Not found');
             const data = await res.json();
-            // clear current view
-            chatMessages.innerHTML = '';
+            // mark this as the active session
+            currentSessionId = sessionId;
+            // show welcome message before loading history
+            showWelcome();
             data.messages.forEach(msg => {
                 const div = document.createElement('div');
                 div.className = `message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`;
@@ -297,11 +325,9 @@
                         msg.sources.forEach(src => {
                             const btn = document.createElement('button');
                             btn.className = 'source-button';
-                            btn.textContent = src.name;
-                            btn.title = src.name;
-                            if (src.url) {
-                                btn.addEventListener('click', () => window.open(src.url, '_blank'));
-                            }
+                            btn.textContent = src;
+                            btn.title = src;
+                            btn.addEventListener('click', () => window.open(`/pdf/${src}`, '_blank'));
                             srcContainer.appendChild(btn);
                         });
                         div.appendChild(srcContainer);
@@ -328,6 +354,15 @@
             console.error('Failed to load session', e);
         }
     }
+
+    // initialize currentSessionId from URL if present, then show welcome + history
+    (function(){
+        const parts = window.location.pathname.split('/').filter(p=>p);
+        if (parts[0] === 'chat' && parts[1]) currentSessionId = parts[1];
+    })();
+
+    // always show the welcome message at start
+    showWelcome();
 
     // fetch list of past conversations immediately
     loadHistory();
@@ -428,28 +463,7 @@
         overlay.classList.remove('active');
     }
 
-    // ---- Download chat ----
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', () => {
-            const messages = chatMessages.querySelectorAll('.message');
-            let text = 'محادثة المساعد القانوني الذكي\n';
-            text += '='.repeat(40) + '\n\n';
 
-            messages.forEach(msg => {
-                const role = msg.classList.contains('user-message') ? 'المستخدم' : 'المساعد';
-                const content = msg.querySelector('.msg-content, div:not(.ai-badge):not(.message-time)');
-                const time = msg.querySelector('.message-time')?.textContent || '';
-                const msgText = content ? content.textContent : msg.textContent.replace('المساعد الذكي', '').replace(time, '').trim();
-                text += `[${role}] ${time}\n${msgText}\n\n`;
-            });
-
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `محادثة-قانونية-${new Date().toISOString().slice(0,10)}.txt`;
-            a.click();
-        });
-    }
 
     // ---- Mobile menu ----
     if (mobileToggle) {

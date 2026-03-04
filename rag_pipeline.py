@@ -171,10 +171,24 @@ def ask_question(question: str):
         src = doc.metadata.get("source")
         if not src or src in seen:
             continue
-        seen.add(src)
-        sources.append(src)
+        
+        # extract relative path in folder/filename format from legal_DOCS
+        src_path = os.path.normpath(src)
+        try:
+            rel = os.path.relpath(src_path, start=os.getcwd())
+        except Exception:
+            rel = src_path
+        
+        # keep only folder/filename part
+        if rel.startswith(os.path.normpath('legal_DOCS')):
+            rel_path = rel[len(os.path.normpath('legal_DOCS') + os.sep) :]
+            sources.append(rel_path)
+            seen.add(src)
+        else:
+            sources.append(src)
+            seen.add(src)
 
-    # sources is now a list of dicts {name,url}
+    # sources is now a list of strings in folder/filename format
     return answer, sources
 
 # ==========================

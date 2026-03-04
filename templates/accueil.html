@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBA Workspace - مساحة الأستاذ بنمخلوف</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #7c3aed;
+            --primary-light: #a855f7;
+            --primary-dark: #5b21b6;
+            --accent-color: #f59e0b;
+            --accent-light: #fbbf24;
+            --success-color: #10b981;
+            --text-light: #ffffff;
+            --text-dark: #1e1b4b;
+            --text-gray: #64748b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.95);
+            --border-color: rgba(124, 58, 237, 0.15);
+            --shadow-primary: rgba(124, 58, 237, 0.15);
+            --shadow-secondary: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: var(--bg-primary);
+            padding: 1.5rem 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            color: var(--primary-color);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: #6b7280;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: #f3f4f6;
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Logout button at bottom of sidebar */
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background: var(--bg-primary);
+        }
+
+        .sidebar-footer .nav-link {
+            width: 100%;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 2rem;
+            background: #f5f5f7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.25rem 2rem;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #7c3aed;
+            color: #ffffff;
+        }
+
+        .header-btn:hover {
+            background: #f3f4f6;
+            color: var(--text-dark);
+        }
+
+        .header-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Section Profil */
+        .profile-section {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1rem;
+        }
+
+        .profile-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-avatar-container {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e5e7eb;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 4px 12px var(--shadow-primary);
+            transition: all 0.3s ease;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px var(--shadow-primary);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-status {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: var(--success-color);
+            border: 3px solid var(--text-light);
+            border-radius: 50%;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-welcome {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .profile-role {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .profile-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .profile-btn-primary {
+            background: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .profile-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .profile-btn-secondary {
+            background: transparent;
+            color: var(--text-gray);
+            border: 2px solid #e5e7eb;
+        }
+
+        .profile-btn-secondary:hover {
+            background: #f3f4f6;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Services Section */
+        .services-section {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 12px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+
+        .service-icon-svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .service-subtitle {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .service-description {
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 220px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .header {
+                padding: 1rem 1.5rem;
+            }
+
+            .header-title {
+                font-size: 1.25rem;
+            }
+
+            .profile-section {
+                padding: 2rem;
+            }
+
+            .profile-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .services-section {
+                padding: 2rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .services-section {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .service-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .service-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        /* Overlay pour mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Overlay pour mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo" onclick="window.location.href='{{ url_for('accueil') }}'" style="cursor: pointer;">
+                    <!-- <i data-lucide="briefcase" class="logo-icon"></i> -->
+                    <img src="./static/images/logo1.png" alt="CBA Logo" class="logo-icon">
+                    <span>CBA Workspace</span>
+                </div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-page="home">
+                            <i data-lucide="home" class="nav-icon"></i>
+                            <span>الرئيسية</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="{{ url_for('logout') }}" class="nav-link" id="logoutBtn">
+                    <i data-lucide="log-out" class="nav-icon"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h1 class="header-title">مرحباً بك في مساحتك الشخصية</h1>
+                <!-- <div class="header-actions">
+                    <button class="header-btn" title="البحث">
+                        <i data-lucide="search" class="header-icon"></i>
+                    </button>
+                    <button class="header-btn" title="الإشعارات" id="notificationBtn">
+                        <i data-lucide="bell" class="header-icon"></i>
+                    </button>
+                    <button class="header-btn" id="mobileMenuBtn" title="القائمة">
+                        <i data-lucide="menu" class="header-icon"></i>
+                    </button>
+                </div> -->
+            </header>
+
+            <div class="content-grid" id="mainContent">
+                <!-- Section Profil -->
+                <section class="profile-section">
+                    <div class="profile-content">
+                        <div class="profile-avatar-container">
+                            <div class="profile-avatar">
+                                <img src="./static/images/img.png" alt="صورة الأستاذ بنمخلوف" id="userAvatar">
+                            </div>
+                            <div class="profile-status" title="متصل"></div>
+                        </div>
+                        <div class="profile-info">
+                            <p class="profile-welcome">مرحباً بك الأستاذ</p>
+                            <h2 class="profile-name" id="userName">خالد بنمخلوف</h2>
+                            <p class="profile-role" id="userRole">محامي متخصص</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Services Section -->
+                <section class="services-section">
+                    <h2 class="section-title">الأدوات المتاحة لسيادتكم</h2>
+                    <p class="section-subtitle">
+                        اختر الأداة التي تريد استخدامها لمساعدتك في عملك القانوني وإدارة قضاياك بكفاءة عالية يا أستاذ بنمخلوف
+                    </p>
+
+                    <div class="services-grid">
+                        <div class="service-card" onclick="window.location.href='/chat'">
+                            <div class="service-icon">
+                                <i data-lucide="message-circle" class="service-icon-svg"></i>
+                            </div>
+                            <h3 class="service-title">المساعد الذكي</h3>
+                            <p class="service-subtitle">Chatbot القانوني</p>
+                            <p class="service-description">
+                                احصل على استشارات قانونية فورية وإجابات على استفساراتك من خلال المساعد الذكي المتخصص
+                            </p>
+                        </div>
+
+                        <div class="service-card" onclick="window.location.href='/generator'">
+                            <div class="service-icon">
+                                <i data-lucide="file-plus" class="service-icon-svg"></i>
+                            </div>
+                            <h3 class="service-title">مولد الوثائق</h3>
+                            <p class="service-subtitle">Document Generator</p>
+                            <p class="service-description">
+                                قم بإنشاء الوثائق القانونية والعقود والمرافعات بسهولة باستخدام القوالب المعتمدة
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de confirmation de déconnexion -->
+    <div id="logoutModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد تسجيل الخروج</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد أنك تريد تسجيل الخروج؟</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmLogout" class="btn btn-danger">نعم، سجل خروج</button>
+                <button id="cancelLogout" class="btn btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attendre que le contenu de la page soit entièrement chargé
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser les icônes Lucide une fois que la page est prête
+            lucide.createIcons();
+
+            // Vérification de l'authentification au chargement
+            //checkAuthentication();
+
+            // Configuration des écouteurs d'événements
+            setupEventListeners();
+        });
+
+        async function checkAuthentication() {
+            try {
+                const response = await fetch('/api/auth/check', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Erreur de vérification:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        function setupEventListeners() {
+            // Gestion du logout avec modal
+            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutModal = document.getElementById('logoutModal');
+            const confirmLogout = document.getElementById('confirmLogout');
+            const cancelLogout = document.getElementById('cancelLogout');
+            const closeModal = document.querySelector('.close-modal');
+
+            if (logoutBtn && logoutModal) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logoutModal.classList.add('active');
+                });
+            }
+
+            if (confirmLogout) {
+                confirmLogout.addEventListener('click', async function() {
+                    logoutModal.classList.remove('active');
+                    try {
+                        const response = await fetch('/logout', {
+                            method: 'POST',
+                            credentials: 'include'
+                        });
+                        window.location.href = '/login';
+                    } catch (error) {
+                        console.error('Erreur lors de la déconnexion:', error);
+                    }
+                });
+            }
+
+            if (cancelLogout) {
+                cancelLogout.addEventListener('click', function() {
+                    logoutModal.classList.remove('active');
+                });
+            }
+
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    logoutModal.classList.remove('active');
+                });
+            }
+
+            // Fermer le modal en cliquant à l'extérieur
+            if (logoutModal) {
+                logoutModal.addEventListener('click', function(e) {
+                    if (e.target === logoutModal) {
+                        logoutModal.classList.remove('active');
+                    }
+                });
+            }
+
+            // Mobile menu functionality
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            if (mobileMenuBtn && sidebar && sidebarOverlay) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                    sidebarOverlay.classList.toggle('active');
+                });
+
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('open');
+                    sidebarOverlay.classList.remove('active');
+                });
+            }
+
+            // Navigation
+            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+
+            // Notifications
+            const notificationBtn = document.getElementById('notificationBtn');
+            if (notificationBtn) {
+                notificationBtn.addEventListener('click', function() {
+                    checkNotifications();
+                });
+            }
+        }
+
+        // Global variables
+        let currentUser = null;
+        let isAuthenticated = false;
+
+        async function handleLogout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    isAuthenticated = false;
+                    currentUser = null;
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('خطأ في تسجيل الخروج:', error);
+            }
+        }
+
+        function updateUserInterface() {
+            if (currentUser) {
+                const userNameElement = document.getElementById('userName');
+                const userRoleElement = document.getElementById('userRole');
+                const userAvatarElement = document.getElementById('userAvatar');
+
+                if (userNameElement) userNameElement.textContent = currentUser.full_name;
+                if (userRoleElement) userRoleElement.textContent = currentUser.specialization || currentUser.role;
+
+                // Update avatar if available
+                if (currentUser.photo && currentUser.photo !== 'default.jpg' && userAvatarElement) {
+                    userAvatarElement.src = `/uploads/${currentUser.photo}`;
+                }
+            }
+
+            // Load synchronized profile image from localStorage
+            loadSynchronizedProfileImage();
+        }
+
+        function loadSynchronizedProfileImage() {
+            const savedProfileImage = localStorage.getItem('userProfileImage');
+            const userAvatarElement = document.getElementById('userAvatar');
+            if (savedProfileImage && userAvatarElement) {
+                userAvatarElement.src = savedProfileImage;
+            }
+        }
+
+        function saveProfileImageToStorage(imageSrc) {
+            localStorage.setItem('userProfileImage', imageSrc);
+        }
+
+        function navigateToPage(page) {
+            switch(page) {
+                case 'home':
+                    location.reload();
+                    break;
+                case 'clients':
+                    window.location.href = '/clients.html';
+                    break;
+                case 'messages':
+                    window.location.href = '/messages.html';
+                    break;
+                case 'profile':
+                    window.location.href = '/profile.html';
+                    break;
+                default:
+                    console.log('Page non reconnue:', page);
+            }
+        }
+
+        function loadHomePage() {
+            location.reload();
+        }
+
+        function loadClientsPage() {
+            window.location.href = '/clients.html';
+        }
+
+        function loadMessagesPage() {
+            window.location.href = '/messages.html';
+        }
+
+        function loadProfilePage() {
+            window.location.href = '/profile.html';
+        }
+
+        function loadProfileEditPage() {
+            window.location.href = '/profile-edit.html';
+        }
+
+        function openChatbot() {
+            window.location.href = '/index.html';
+        }
+
+        function openGenerator() {
+            window.location.href = '/generator.html';
+        }
+
+        async function checkNotifications() {
+            try {
+                const response = await fetch('/api/appointments/notifications', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (data.notifications && data.notifications.length > 0) {
+                    let message = 'إشعارات المواعيد:\n\n';
+                    data.notifications.forEach(notif => {
+                        message += `• ${notif.message}\n`;
+                    });
+                    alert(message);
+                } else {
+                    alert('لا توجد إشعارات جديدة');
+                }
+            } catch (error) {
+                console.error('خطأ في استرجاع الإشعارات:', error);
+            }
+        }
+
+        // Enhanced interactions
+        document.querySelectorAll('.service-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ from rag_pipeline import ask_question
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'devkey')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:youssef03@localhost:5432/adala'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/adala')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -42,7 +42,6 @@ with app.app_context():
 
 
 @app.before_request
-
 def ensure_logged_in():
     # allow public endpoints
     if request.endpoint in ('login', 'static', 'register', 'logout'):
@@ -75,7 +74,15 @@ app.before_request(ensure_logged_in)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return redirect(url_for('accueil'))
+
+@app.route("/accueil")
+def accueil():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template("accueil.html", user_email=g.user.email_ciphertext.decode(), user_id=g.user.id)
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -126,13 +133,13 @@ def logout():
 
 @app.route("/chat", methods=["GET"])
 def chat_base():
-    return render_template("index.html")
+    return render_template("chat.html")
 
 
 @app.route("/chat/<sid>", methods=["GET"])
 def chat_page(sid=None):
     # serve the main interface; client-side will handle the conversation ID
-    return render_template("index.html")
+    return render_template("chat.html")
 
 
 @app.route("/chat", methods=["POST"])
@@ -179,7 +186,7 @@ def serve_pdf(filename):
 
 @app.route("/api/clear", methods=["POST"])
 def clear():
-    # remove all messages for the active conversation, do not delete the conv
+    # delete the entire conversation and all its messages
     sid = request.args.get('sid')
     if not sid:
         # use last active conv if not specified
@@ -187,7 +194,7 @@ def clear():
     else:
         conv = Conversation.query.filter_by(id=sid, owner_id=g.user.id).first()
     if conv:
-        Message.query.filter_by(conv_id=conv.id).delete()
+        db.session.delete(conv)
         db.session.commit()
     return ("", 204)
 
@@ -206,7 +213,7 @@ def history():
     convs = Conversation.query.filter_by(owner_id=g.user.id).order_by(Conversation.created.desc()).all()
     for conv in convs:
         first = Message.query.filter_by(conv_id=conv.id).order_by(Message.id).first()
-        title = first.text[:40] + "..." if first else "محادثة فارغة"
+        title = conv.created.strftime("%Y-%m-%d %H:%M") + " - " + first.text if first else "محادثة فارغة"
         hist.append({"id": conv.id, "title": title, "timestamp": conv.created.isoformat()})
     return jsonify(hist)
 

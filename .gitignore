@@ -4,6 +4,7 @@ images/*
 legal_DOCS/*
 legal_RAG/*
 .venv/*
+.venv2/*
 __pycache__/*
 unified_rag/*
 chat_history.db
