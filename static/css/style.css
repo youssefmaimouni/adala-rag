@@ -92,9 +92,9 @@ header {
     box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
-.sidebar-nav { flex: 1; margin-top: 1rem; }
+.sidebar-nav { flex: 1; margin-top: 1rem; overflow-y: scroll; }
 
-.nav-section { margin-bottom: 2rem; }
+.nav-section { margin-bottom: 2rem; overflow-y: scroll; }
 
 .nav-section-title {
     font-size: 0.8rem;
@@ -326,7 +326,7 @@ main {
 /* make source buttons look like the other primary buttons in the app */
 .source-button {
     display: inline-block;
-    width: 50%;              /* fixed width half of container */
+    width: 80%;              /* fixed width half of container */
     padding: 8px 12px;
     border-radius: 12px;
     border: none;

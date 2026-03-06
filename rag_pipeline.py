@@ -16,6 +16,7 @@ import faiss
 
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()
 
@@ -96,10 +97,12 @@ for i, doc in enumerate(all_docs):
     docstore_dict[str(i)] = Document(
         page_content=doc["text"], 
         metadata={
-            "title": doc.get("title"),
             "source": doc.get("source"),
+            "article": doc.get("article"),  
             "chunk_id": doc.get("chunk_id"),
-            "corpus": doc.get("corpus"),
+            "folder": doc.get("folder"),
+            "file_name": doc.get("file_name"),
+            "type": doc.get("type")
         }
     )
 
@@ -130,72 +133,101 @@ qa_chain = RetrievalQA.from_chain_type(
     return_source_documents=True    # ensure retrieved docs are included in result
 )
 
-def _format_source(src: str) -> dict:
-    """Return a dict with ``name`` and ``url`` for a source path.
-
-    The frontend expects a list of such dicts; when the source file lives
-    under ``legal_DOCS`` we compute a URL via our ``/pdf`` helper route.
-    Otherwise ``url`` stays ``None`` and the client may simply display the
-    basename without making it clickable.
-    """
-    info = {"name": "", "url": None}
-    if not src:
-        return info
-
-    # normalize to forward slashes for URLs
-    src_path = os.path.normpath(src)
-    try:
-        rel = os.path.relpath(src_path, start=os.getcwd())
-    except Exception:
-        rel = src_path
-
-    info["name"] = os.path.basename(src_path)
-    if rel.startswith(os.path.normpath('legal_DOCS')):
-        # strip leading directory portion
-        rel_path = rel[len(os.path.normpath('legal_DOCS') + os.sep) :]
-        url = f"/pdf/{rel_path.replace(os.sep, '/') }"
-        info["url"] = url
-    return info
-
-
 def ask_question(question: str):
-    # request the chain and explicitly ask for source_documents
-    result = qa_chain({"query": question})
-    answer = result.get("result", "")
 
-    # gather unique source links from the retrieved documents
-    seen = set()
+    docs_and_scores = vectorstore.similarity_search_with_score(question, k=10)
+
+    docs = [doc for doc, score in docs_and_scores]
+
+    # generate answer from retrieved docs
+    answer = qa_chain.combine_documents_chain.run(
+        input_documents=docs,
+        question=question
+    )
+
+    source_map = {}
+    print("Docs and Scores:", docs_and_scores)
+    print("="*40)
+    for doc, score in docs_and_scores:
+        
+        src = doc.metadata.get("source")
+        article = doc.metadata.get("article")
+        pattern = r'^(المادة\s*\d+|الفصل\s*\d+)$'
+        if article and not re.match(pattern, article):
+            continue
+        if not src:
+            continue
+
+        if src not in source_map:
+            source_map[src] = {
+                "source": src,
+                "articles": set(),
+                "scores": []
+            }
+
+        if article:
+            source_map[src]["articles"].add(article)
+
+        source_map[src]["scores"].append(score)
+
     sources = []
 
-    for doc in result.get("source_documents", []):
-        src = doc.metadata.get("source")
-        if not src or src in seen:
-            continue
-        
-        # extract relative path in folder/filename format from legal_DOCS
-        src_path = os.path.normpath(src)
-        try:
-            rel = os.path.relpath(src_path, start=os.getcwd())
-        except Exception:
-            rel = src_path
-        
-        # keep only folder/filename part
-        if rel.startswith(os.path.normpath('legal_DOCS')):
-            rel_path = rel[len(os.path.normpath('legal_DOCS') + os.sep) :]
-            sources.append(rel_path)
-            seen.add(src)
-        else:
-            sources.append(src)
-            seen.add(src)
+    for src in source_map.values():
 
-    # sources is now a list of strings in folder/filename format
+        avg_score = sum(src["scores"]) / len(src["scores"])
+
+        # convert similarity → trust %
+        trust = max(0, min(100, int((1 - avg_score) * 100)))
+        if trust < 30:
+            continue
+        sources.append({
+            "source": src["source"],
+            "articles": sorted(list(src["articles"])),
+            "trust": trust
+        })
+
     return answer, sources
+
+# def ask_question(question: str):
+
+#     result = qa_chain({"query": question})
+#     answer = result.get("result", "")
+
+#     source_map = {}
+
+#     for doc in result.get("source_documents", []):
+
+#         src = doc.metadata.get("source")
+#         article = doc.metadata.get("article")
+
+#         if not src:
+#             continue
+
+#         # create entry if source not seen
+#         if src not in source_map:
+#             source_map[src] = {
+#                 "source": src,
+#                 "articles": set()
+#             }
+
+#         if article:
+#             source_map[src]["articles"].add(article)
+
+#     # convert sets → list
+#     sources = []
+#     for src in source_map.values():
+#         sources.append({
+#             "source": src["source"],
+#             "articles": sorted(list(src["articles"]))
+#         })
+
+#     return answer, sources
 
 # ==========================
 # EXAMPLE USAGE
 # ==========================
 if __name__ == "__main__":
-    question = "ما هي عقوبة تجاوز السرعة القصوى"
+    question = "هل يجوز السياقة برخصة أجنبية"
     answer, sources = ask_question(question)
     print("❓ Question:", question)
     print("💡 Answer:", answer)

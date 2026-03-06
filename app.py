@@ -6,7 +6,8 @@ from rag_pipeline import ask_question
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'devkey')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/adala')
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/adala')
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:youssef03@localhost:5432/adala"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -14,7 +15,6 @@ db = SQLAlchemy(app)
 # ------------------------------
 # models
 # ------------------------------
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email_ciphertext = db.Column(db.LargeBinary, nullable=False)

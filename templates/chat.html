@@ -38,13 +38,14 @@
 
         /* Logout button at bottom of sidebar */
         .sidebar-footer {
+            height: 75px;
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 1rem;
+            padding: 0.5rem;
             border-top: 1px solid #e5e7eb;
-            background: var(--bg-primary);
+            background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
         }
 
         .sidebar-footer a {
@@ -178,6 +179,21 @@
         .hidden {
             display: none;
         }
+        
+        /* For Chrome, Edge, Safari */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* For Firefox */
+        * {
+            scrollbar-width: none;
+        }
+
+        /* For IE and older Edge */
+        * {
+            -ms-overflow-style: none;
+        }
     </style>
 </head>
 <body>
@@ -307,20 +323,8 @@
 </svg></i>
             </button>
             <!-- <button id="voice-btn" class="mode-btn" title="الإدخال الصوتي" aria-label="ميكروفون">
-                <i class="fas fa-microphone"><svg fill="#000000" width="20px" height="20px" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
-
-<title/>
-
-<g>
-
-<path d="M84,36a6,6,0,0,0-12,0,24,24,0,0,1-48,0,6,6,0,0,0-12,0A35.9772,35.9772,0,0,0,42,71.3936V84H30a6,6,0,0,0,0,12H66a6,6,0,0,0,0-12H54V71.3936A35.9772,35.9772,0,0,0,84,36Z"/>
-
-<path d="M48,48A12.0157,12.0157,0,0,0,60,36V12a12,12,0,0,0-24,0V36A12.0157,12.0157,0,0,0,48,48Z"/>
-
-</g>
-
-</svg></i>
-            </button> -->
+    <i class="fas fa-microphone"></i>
+</button> -->
             <button id="send-btn" aria-label="إرسال">
                 <i class="fas fa-paper-plane"><svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 334.5 334.5" xml:space="preserve">
@@ -498,6 +502,81 @@
                 });
             }
         }
+
+// const voiceBtn = document.getElementById("voice-btn");
+// const userInput = document.getElementById("user-input");
+// const recordingIndicator = document.getElementById("recording-indicator");
+
+// let mediaRecorder;
+// let audioChunks = [];
+
+// if (voiceBtn) {
+
+//     voiceBtn.addEventListener("click", async () => {
+
+//         try {
+
+//             // Ask microphone permission
+//             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+//             const mediaRecorder = new MediaRecorder(stream, {
+//                 mimeType: "audio/webm"
+//             });
+//             audioChunks = [];
+
+//             mediaRecorder.start();
+//             recordingIndicator.style.display = "flex";
+
+//             // record 4 seconds
+//             setTimeout(() => {
+//                 mediaRecorder.stop();
+//             }, 5000);
+//             console.log("Recording started...");
+//             mediaRecorder.ondataavailable = event => {
+//                 audioChunks.push(event.data);
+//             };
+//             console.log("Recording stopped, processing audio...");
+//             mediaRecorder.onstop = async () => {
+
+//                 recordingIndicator.style.display = "none";
+
+//                 const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+//                 console.log("Audio blob created:", audioBlob);
+//                 const formData = new FormData();
+//                 formData.append("audio", audioBlob, "recording.wav");
+//                 console.log("Sending audio file...");
+//                 console.log("FormData contents:");
+//                 for (let pair of formData.entries()) {
+//                     console.log(pair[0] + ": ", pair[1]);
+//                 }
+//                 const response = await fetch("/api/voice-input", {
+//                     method: "POST",
+//                     body: formData
+//                 });
+
+//                 const data = await response.json();
+//                 console.log("Transcription response:", data);
+//                 if (data.success) {
+
+//                     userInput.value = data.transcription;
+
+//                     // optional auto send
+//                     document.getElementById("send-btn").click();
+
+//                 } else {
+//                     alert(data.error || "خطأ في التعرف على الصوت");
+//                 }
+
+//             };
+
+//         } catch (error) {
+//             recordingIndicator.style.display = "none";
+//             console.error("Voice input error:", error);
+//         }
+
+//     });
+
+// }
 
     </script>
 </body>

@@ -96,12 +96,13 @@
                 const btn = document.createElement('button');
                 btn.className = 'source-button';
 
-                btn.textContent = src;
-                btn.title = src;
-
-                btn.addEventListener('click', () => {
-                    window.open(`/pdf/${src}`, '_blank');
-                });
+                if (src.articles && src.articles.length) {
+                    btn.textContent = `(${src.articles.join(', ')}) ${src.source}`;
+                } else {
+                    btn.textContent = src.source;
+                }
+                btn.title = src.source;
+                btn.addEventListener('click', () => window.open(`/pdf/${src.source}`, '_blank'));
 
                 srcContainer.appendChild(btn);
             });
@@ -322,12 +323,18 @@
                         // append source buttons after the message
                         const srcContainer = document.createElement('div');
                         srcContainer.className = 'source-container';
+                        srcContainer.innerHTML = `<strong>المصادر:</strong>`;
+
                         msg.sources.forEach(src => {
                             const btn = document.createElement('button');
                             btn.className = 'source-button';
-                            btn.textContent = src;
-                            btn.title = src;
-                            btn.addEventListener('click', () => window.open(`/pdf/${src}`, '_blank'));
+                            if (src.articles && src.articles.length) {
+                                btn.textContent = `(${src.articles.join(', ')}) ${src.source}`;
+                            } else {
+                                btn.textContent = src.source;
+                            }
+                            btn.title = src.source;
+                            btn.addEventListener('click', () => window.open(`/pdf/${src.source}`, '_blank'));
                             srcContainer.appendChild(btn);
                         });
                         div.appendChild(srcContainer);
