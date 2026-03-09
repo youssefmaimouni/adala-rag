@@ -10,13 +10,19 @@
 
     {# App CSS — served via Flask static #}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <style>
         /* .sidebar-header {
             padding: 0 1.5rem 1.5rem;
             border-bottom: 1px solid #e5e7eb;
             margin-bottom: 1.5rem;
         } */
-
+        .fas{
+            justify-content: center;
+            display: flex;
+            align-items: center;
+        }
         .logo-place {
             display: flex;
             align-items: center;
@@ -129,6 +135,13 @@
             cursor: pointer;
             color: #6b7280;
         }
+        .close-delete-modal{
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
 
         .modal-body {
             padding: 1.5rem;
@@ -178,6 +191,17 @@
 
         .hidden {
             display: none;
+        }
+
+        .no-chat-selected{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:70vh;
+            text-align:center;
+            font-size:1.2rem;
+            color:#9ca3af;
+            font-weight:500;
         }
         
         /* For Chrome, Edge, Safari */
@@ -256,10 +280,7 @@
 
         {# Top bar #}
         <div class="main-header">
-            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="القائمة">
-                <i class="fas fa-bars"></i>
-            </button>
-
+            
             <div class="main-title">
                 <img src="{{ url_for('static', filename='images/icon.png') }}"
                      alt="Logo"
@@ -270,15 +291,28 @@
             </div>
 
             <div class="header-actions" onclick="window.location.href='{{ url_for('accueil') }}'" style="cursor: pointer;">
-                <button class="header-btn" id="download-btn" title="استقبال">
-                    <span>استقبال</span>
+                <button class="header-btn fas" id="download-btn" title="الرئيسية">
+                            <i data-lucide="home" class="nav-icon fas"><svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_15_3)">
+<rect width="24" height="24" fill="none"/>
+<path d="M9 21H4C3.44772 21 3 20.5523 3 20V12.4142C3 12.149 3.10536 11.8946 3.29289 11.7071L11.2929 3.70711C11.6834 3.31658 12.3166 3.31658 12.7071 3.70711L20.7071 11.7071C20.8946 11.8946 21 12.149 21 12.4142V20C21 20.5523 20.5523 21 20 21H15M9 21H15M9 21V15C9 14.4477 9.44772 14 10 14H14C14.5523 14 15 14.4477 15 15V21" stroke="#ffffff" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_15_3">
+<rect width="24" height="24" fill="none"/>
+</clipPath>
+</defs>
+</svg></i>
+                            <span>الرئيسية</span>
                 </button>
                 <!-- <a href="{{ url_for('logout') }}" class="header-btn">تسجيل الخروج</a> -->
             </div>
         </div>
-
+        <!-- <div id="no-chat-selected" class="no-chat-selected">
+            اختر محادثة من القائمة أو أنشئ محادثة جديدة
+        </div> -->
         {# Chat container #}
-        <div class="chat-container">
+        <div class="chat-container" aria-label="منطقة إدخال الرسائل">
 
             {# Mode switcher + clear button #}
             <div class="chat-sidebar">
@@ -311,7 +345,7 @@
         </div>
 
         {# Fixed input bar #}
-        <div class="chat-input" id="chat-input">
+        <div class="chat-input" id="chat-input" aria-label="منطقة إدخال الرسائل">
             <input id="user-input"
                       placeholder="اكتب سؤالك هنا..."
                       rows="1"
@@ -394,6 +428,23 @@
             <div class="modal-footer">
                 <button id="confirmLogout" class="btn btn-danger">نعم، سجل خروج</button>
                 <button id="cancelLogout" class="btn btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <div id="deleteChatModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد حذف المحادثة</h3>
+                <button class="close-delete-modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <p>هل أنت متأكد أنك تريد مسح هذه المحادثة؟</p>
+            </div>
+
+            <div class="modal-footer">
+                <button id="confirmDeleteChat" class="btn btn-danger">نعم، احذف</button>
+                <button id="cancelDeleteChat" class="btn btn-secondary">إلغاء</button>
             </div>
         </div>
     </div>
@@ -577,6 +628,119 @@
 //     });
 
 // }
+//     const chatMessages     = document.getElementById('chat-messages');
+//     function escapeHtml(text) {
+//         const d = document.createElement('div');
+//         d.appendChild(document.createTextNode(text));
+//         return d.innerHTML;
+//     }
+//     function formatTime(iso) {
+//         const d = new Date(iso);
+//         return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+//     }
+//     function scrollToBottom() {
+//         chatMessages.scrollTop = chatMessages.scrollHeight;
+//     }
+//     async function loadSession(sessionId) {
+//         try {
+//             const res = await fetch(`/api/session/${sessionId}`);
+//             if (!res.ok) throw new Error('Not found');
+//             const data = await res.json();
+//             // mark this as the active session
+//             currentSessionId = sessionId;
+//             // show welcome message before loading history
+//             // showWelcome();
+//             data.messages.forEach(msg => {
+//                 const div = document.createElement('div');
+//                 div.className = `message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`;
+//                 if (msg.role === 'bot') {
+//                     div.innerHTML = `
+//                         <div class="ai-badge"><i class="fas fa-robot"><svg fill="#000000" width="20px" height="20px" viewBox="0 -64 640 640" xmlns="http://www.w3.org/2000/svg"><path d="M32,224H64V416H32A31.96166,31.96166,0,0,1,0,384V256A31.96166,31.96166,0,0,1,32,224Zm512-48V448a64.06328,64.06328,0,0,1-64,64H160a64.06328,64.06328,0,0,1-64-64V176a79.974,79.974,0,0,1,80-80H288V32a32,32,0,0,1,64,0V96H464A79.974,79.974,0,0,1,544,176ZM264,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,264,256Zm-8,128H192v32h64Zm96,0H288v32h64ZM456,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,456,256Zm-8,128H384v32h64ZM640,256V384a31.96166,31.96166,0,0,1-32,32H576V224h32A31.96166,31.96166,0,0,1,640,256Z"/></svg></i> المساعد الذكي</div>
+//                         <div class="msg-content">${escapeHtml(msg.text)}</div>
+//                         <div class="message-time">${formatTime(msg.time)}</div>
+//                     `;
+//                     if (msg.sources && msg.sources.length) {
+//                         // append source buttons after the message
+//                         const srcContainer = document.createElement('div');
+//                         srcContainer.className = 'source-container';
+//                         srcContainer.innerHTML = `<strong>المصادر:</strong>`;
+
+//                         msg.sources.forEach(src => {
+//                             const btn = document.createElement('button');
+//                             btn.className = 'source-button';
+//                             if (src.articles && src.articles.length) {
+//                                 btn.textContent = `(${src.articles.join(', ')}) ${src.source}`;
+//                             } else {
+//                                 btn.textContent = src.source;
+//                             }
+//                             btn.title = src.source;
+//                             btn.addEventListener('click', () => window.open(`/pdf/${src.source}`, '_blank'));
+//                             srcContainer.appendChild(btn);
+//                         });
+//                         div.appendChild(srcContainer);
+//                         // move timestamp to bottom of message
+//                         const timeEl = div.querySelector('.message-time');
+//                         if (timeEl) div.appendChild(timeEl);
+//                     }
+//                 } else {
+//                     div.innerHTML = `
+//                         ${escapeHtml(msg.text)}
+//                         <div class="message-time">${formatTime(msg.time)}</div>
+//                     `;
+//                 }
+//                 chatMessages.appendChild(div);
+//             });
+//             scrollToBottom();
+//             // mark selected session as active in sidebar
+//             historyList.querySelectorAll('.chat-history-item').forEach(div => {
+//                 div.classList.toggle('active', div.dataset.sessionId === sessionId);
+//             });
+//             // update browser URL so it reflects current conversation
+//             history.replaceState(null, '', '/chat/' + sessionId);
+//         } catch (e) {
+//             console.error('Failed to load session', e);
+//         }
+//     }
+
+// function updateChatView() {
+
+// const chatContainer = document.querySelector('.chat-container');
+// const chatInput = document.querySelector('.chat-input');
+// const noChat = document.getElementById('no-chat-selected');
+
+// const path = window.location.pathname;
+
+// if (window.location.pathname === '/chat') {
+//     chatContainer.style.display = "none";
+//     chatInput.style.display = "none";
+//     noChat.style.display = "flex";
+// } else {
+//     chatContainer.style.display = "flex";
+//     chatInput.style.display = "flex";
+//     noChat.style.display = "none";
+//     scrollToBottom();
+// }
+// }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     updateChatView();
+// });
+// // Back/forward navigation
+// window.addEventListener('popstate', updateChatView);
+
+// // Detect pushState / replaceState
+// const pushState = history.pushState;
+// history.pushState = function () {
+//     pushState.apply(history, arguments);
+//     updateChatView();
+// };
+
+// const replaceState = history.replaceState;
+// history.replaceState = function () {
+//     replaceState.apply(history, arguments);
+//     updateChatView();
+// };
+
 
     </script>
 </body>

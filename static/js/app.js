@@ -147,6 +147,13 @@
 
         showTyping();
 
+        if (!currentSessionId) {
+            const res = await fetch('/api/new_session', { method: 'POST' });
+            const data = await res.json();
+            currentSessionId = data.id;
+            history.replaceState(null, '', '/chat/' + data.id);
+        }
+
         try {
             // determine conversation ID from URL if present
             let url = '/chat';
@@ -208,41 +215,81 @@
     });
 
     // ---- Clear chat ----
-    clearBtn.addEventListener('click', async () => {
-        try {
-            // include current conversation id if present in URL
-            let url = '/api/clear';
-            const parts = window.location.pathname.split('/').filter(p=>p);
-            if (parts[0] === 'chat' && parts[1]) url += '?sid=' + parts[1];
-            await fetch(url, { method: 'POST' });
-        } catch (_) {}
+    // clearBtn.addEventListener('click', async () => {
+    //     try {
+    //         // include current conversation id if present in URL
+    //         let url = '/api/clear';
+    //         const parts = window.location.pathname.split('/').filter(p=>p);
+    //         if (parts[0] === 'chat' && parts[1]) url += '?sid=' + parts[1];
+    //         await fetch(url, { method: 'POST' });
+    //     } catch (_) {}
+    //     window.history.pushState(null, '', '/chat');
+    //     await loadHistory();
+    // });
+    const deleteModal = document.getElementById("deleteChatModal");
+const confirmDelete = document.getElementById("confirmDeleteChat");
+const cancelDelete = document.getElementById("cancelDeleteChat");
+const closeDelete = document.querySelector(".close-delete-modal");
 
-        showWelcome();
-        await loadHistory();
-    });
+// open modal
+clearBtn.addEventListener("click", () => {
+    deleteModal.classList.remove("hidden");
+    deleteModal.classList.add("active");
+});
+
+// cancel delete
+cancelDelete.addEventListener("click", () => {
+    deleteModal.classList.remove("active");
+    deleteModal.classList.add("hidden");
+});
+
+// close X
+closeDelete.addEventListener("click", () => {
+    deleteModal.classList.remove("active");
+    deleteModal.classList.add("hidden");
+});
+
+// confirm delete
+confirmDelete.addEventListener("click", async () => {
+
+    deleteModal.classList.remove("active");
+    deleteModal.classList.add("hidden");
+
+    try {
+        let url = '/api/clear';
+        const parts = window.location.pathname.split('/').filter(p=>p);
+        if (parts[0] === 'chat' && parts[1]) url += '?sid=' + parts[1];
+
+        await fetch(url, { method: 'POST' });
+
+    } catch (_) {}
+
+    history.replaceState(null, '', '/chat');
+
+    currentSessionId = null;
+    showWelcome();
+    await loadHistory();
+});
+deleteModal.addEventListener("click", (e) => {
+    if (e.target === deleteModal) {
+        deleteModal.classList.remove("active");
+        deleteModal.classList.add("hidden");
+    }
+});
 
     // ---- New chat ----
     newChatBtn.addEventListener('click', async () => {
-        try {
-            const res = await fetch('/api/new_session', { method: 'POST' });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.id) {
-                    currentSessionId = data.id;
-                    history.replaceState(null, '', '/chat/' + data.id);
-                }
-            }
-        } catch (_) {}
 
-        chatMessages.innerHTML = `
-            <div class="message bot-message">
-                <div class="ai-badge"><i class="fas fa-robot"><svg fill="#000000" width="20px" height="20px" viewBox="0 -64 640 640" xmlns="http://www.w3.org/2000/svg"><path d="M32,224H64V416H32A31.96166,31.96166,0,0,1,0,384V256A31.96166,31.96166,0,0,1,32,224Zm512-48V448a64.06328,64.06328,0,0,1-64,64H160a64.06328,64.06328,0,0,1-64-64V176a79.974,79.974,0,0,1,80-80H288V32a32,32,0,0,1,64,0V96H464A79.974,79.974,0,0,1,544,176ZM264,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,264,256Zm-8,128H192v32h64Zm96,0H288v32h64ZM456,256a40,40,0,1,0-40,40A39.997,39.997,0,0,0,456,256Zm-8,128H384v32h64ZM640,256V384a31.96166,31.96166,0,0,1-32,32H576V224h32A31.96166,31.96166,0,0,1,640,256Z"/></svg></i> المساعد الذكي</div>
-                مرحباً بك في المساعد القانوني الذكي! كيف يمكنني مساعدتك اليوم؟
-                <div class="message-time">${now()}</div>
-            </div>
-        `;
+        // reset current session
+        currentSessionId = null;
 
-        chatHistoryMeta = [];
+        // change URL
+        history.replaceState(null, '', '/chat');
+
+        // show welcome message
+        showWelcome();
+
+        // refresh history list
         await loadHistory();
     });
 
@@ -255,7 +302,14 @@
         }
         chatHistoryMeta.forEach((item, idx) => {
             const div = document.createElement('div');
-            const active = currentSessionId ? (item.id === currentSessionId) : (idx === chatHistoryMeta.length - 1);
+            let active = false;
+
+            // if we are NOT in /chat
+            if (window.location.pathname !== '/chat') {
+                active = currentSessionId
+                    ? (item.id === currentSessionId)
+                    : (idx === chatHistoryMeta.length - 1);
+            }
             div.className = 'chat-history-item' + (active ? ' active' : '');
             div.dataset.sessionId = item.id;
             div.innerHTML = `<i class="fas fa-comment-dots"><svg width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
@@ -369,10 +423,21 @@
     })();
 
     // always show the welcome message at start
-    showWelcome();
+    (async function () {
+        const parts = window.location.pathname.split('/').filter(p => p);
 
-    // fetch list of past conversations immediately
-    loadHistory();
+        if (parts[0] === 'chat' && parts[1]) {
+            currentSessionId = parts[1];
+        }
+
+        await loadHistory();
+
+        if (currentSessionId) {
+            loadSession(currentSessionId);
+        } else {
+            showWelcome();
+        }
+    })();
 
     // ---- Arabic Keyboard ----
     keyboardBtn.addEventListener('click', () => {

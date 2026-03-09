@@ -153,8 +153,6 @@ def ask_question(question: str):
         src = doc.metadata.get("source")
         article = doc.metadata.get("article")
         pattern = r'^(المادة\s*\d+|الفصل\s*\d+)$'
-        if article and not re.match(pattern, article):
-            continue
         if not src:
             continue
 
@@ -165,7 +163,7 @@ def ask_question(question: str):
                 "scores": []
             }
 
-        if article:
+        if article and re.match(pattern, article):
             source_map[src]["articles"].add(article)
 
         source_map[src]["scores"].append(score)
